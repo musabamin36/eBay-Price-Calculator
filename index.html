@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Niche Finder — DE Sourcing Tool</title>
+<style>
+  :root{
+    --ink:#1b2430;
+    --ink-soft:#4b5768;
+    --ink-faint:#8993a3;
+    --paper:#f3f1ea;
+    --panel:#ffffff;
+    --line:#dcd8cc;
+    --line-strong:#c2bda9;
+    --accent:#1f5f4a;
+    --accent-soft:#e4ede8;
+    --profit:#1f5f4a;
+    --loss:#a3372c;
+    --mono:'IBM Plex Mono','SFMono-Regular',Consolas,monospace;
+    --serif:'Fraunces','Georgia',serif;
+    --sans:'Inter','Helvetica Neue',Arial,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--sans);
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:var(--accent);}
+
+  header.top{
+    border-bottom:1px solid var(--line-strong);
+    padding:28px 32px 22px;
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    flex-wrap:wrap;
+    gap:12px;
+  }
+  header.top .brand{
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+  }
+  header.top .brand .mark{
+    font-family:var(--mono);
+    font-size:12px;
+    letter-spacing:0.12em;
+    color:var(--accent);
+    border:1px solid var(--accent);
+    padding:3px 7px;
+    border-radius:3px;
+  }
+  header.top h1{
+    font-family:var(--serif);
+    font-weight:600;
+    font-size:26px;
+    margin:0;
+    letter-spacing:-0.01em;
+  }
+  header.top .sub{
+    font-family:var(--mono);
+    font-size:12px;
+    color:var(--ink-faint);
+    letter-spacing:0.03em;
+  }
+
+  main{
+    max-width:920px;
+    margin:0 auto;
+    padding:36px 24px 80px;
+  }
+
+  /* --- Niche pager --- */
+  .pager-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:22px;
+    gap:16px;
+  }
+  .pager-head .index{
+    font-family:var(--mono);
+    font-size:12px;
+    color:var(--ink-faint);
+    letter-spacing:0.05em;
+    text-align:center;
+    min-width:120px;
+  }
+  .navbtn{
+    background:var(--panel);
+    border:1px solid var(--line-strong);
+    width:42px;height:42px;
+    border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;
+    font-size:18px;
+    color:var(--ink);
+    transition:background 0.15s, transform 0.1s;
+    flex-shrink:0;
+  }
+  .navbtn:hover{background:var(--accent-soft); border-color:var(--accent);}
+  .navbtn:active{transform:scale(0.94);}
+
+  .niche-title-wrap{
+    text-align:center;
+    flex:1;
+  }
+  .niche-eyebrow{
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--accent);
+    margin-bottom:4px;
+  }
+  .niche-title{
+    font-family:var(--serif);
+    font-size:30px;
+    font-weight:600;
+    margin:0;
+    letter-spacing:-0.01em;
+  }
+
+  .dots{
+    display:flex;
+    justify-content:center;
+    gap:7px;
+    margin:20px 0 30px;
+  }
+  .dot{
+    width:7px;height:7px;border-radius:50%;
+    background:var(--line-strong);
+    cursor:pointer;
+    transition:background 0.15s, transform 0.15s;
+  }
+  .dot.active{background:var(--accent); transform:scale(1.3);}
+
+  .product-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(260px,1fr));
+    gap:1px;
+    background:var(--line);
+    border:1px solid var(--line);
+    margin-bottom:44px;
+  }
+  .product-card{
+    background:var(--panel);
+    padding:16px 18px;
+  }
+  .product-card .num{
+    font-family:var(--mono);
+    font-size:11px;
+    color:var(--ink-faint);
+  }
+  .product-card .name{
+    font-size:14.5px;
+    font-weight:600;
+    margin:4px 0 12px;
+    color:var(--ink);
+  }
+  .product-card .prices{
+    display:flex;
+    gap:20px;
+  }
+  .product-card .price-block .label{
+    font-family:var(--mono);
+    font-size:10px;
+    text-transform:uppercase;
+    letter-spacing:0.06em;
+    color:var(--ink-faint);
+    margin-bottom:2px;
+  }
+  .product-card .price-block .val{
+    font-family:var(--mono);
+    font-size:15px;
+    font-weight:600;
+  }
+  .price-block.cost .val{color:var(--ink-soft);}
+  .price-block.sell .val{color:var(--accent);}
+
+  /* --- Calculator --- */
+  .calc-section{
+    border-top:2px solid var(--ink);
+    padding-top:36px;
+  }
+  .calc-head{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    margin-bottom:24px;
+    flex-wrap:wrap;
+    gap:8px;
+  }
+  .calc-head h2{
+    font-family:var(--serif);
+    font-size:24px;
+    margin:0;
+    font-weight:600;
+  }
+  .calc-head .tag{
+    font-family:var(--mono);
+    font-size:11px;
+    color:var(--ink-faint);
+    letter-spacing:0.04em;
+  }
+
+  .calc-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:28px;
+  }
+  @media (max-width:680px){ .calc-grid{grid-template-columns:1fr;} }
+
+  .inputs-panel, .results-panel{
+    background:var(--panel);
+    border:1px solid var(--line);
+  }
+  .panel-label{
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--ink-faint);
+    padding:14px 18px;
+    border-bottom:1px solid var(--line);
+  }
+  .inputs-panel .field{
+    padding:16px 18px;
+    border-bottom:1px solid var(--line);
+  }
+  .inputs-panel .field:last-child{border-bottom:none;}
+  .inputs-panel label{
+    display:block;
+    font-size:13px;
+    color:var(--ink-soft);
+    margin-bottom:8px;
+  }
+  .field-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .field-row .currency{
+    font-family:var(--mono);
+    font-size:16px;
+    color:var(--ink-faint);
+  }
+  .inputs-panel input[type=number]{
+    width:100%;
+    border:1px solid var(--line-strong);
+    background:var(--paper);
+    padding:9px 10px;
+    font-family:var(--mono);
+    font-size:16px;
+    color:var(--ink);
+    border-radius:2px;
+  }
+  .inputs-panel input[type=number]:focus{
+    outline:2px solid var(--accent);
+    outline-offset:1px;
+  }
+  .inputs-panel input[type=range]{
+    width:100%;
+    accent-color:var(--accent);
+  }
+  .range-out{
+    font-family:var(--mono);
+    font-size:13px;
+    color:var(--accent);
+    min-width:42px;
+    text-align:right;
+  }
+
+  .fee-line{
+    display:flex;
+    justify-content:space-between;
+    padding:11px 18px;
+    border-bottom:1px solid var(--line);
+    font-size:13.5px;
+  }
+  .fee-line .fl{color:var(--ink-soft);}
+  .fee-line .fv{font-family:var(--mono); font-weight:500;}
+  .fee-line.total{
+    border-bottom:none;
+    border-top:1px solid var(--ink);
+    font-weight:600;
+    background:var(--paper);
+  }
+  .fee-line.total .fl{color:var(--ink);}
+
+  .result-stats{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+  }
+  .stat{
+    padding:18px;
+    border-bottom:1px solid var(--line);
+    border-right:1px solid var(--line);
+  }
+  .stat:nth-child(2n){border-right:none;}
+  .stat .stat-label{
+    font-family:var(--mono);
+    font-size:10.5px;
+    text-transform:uppercase;
+    letter-spacing:0.05em;
+    color:var(--ink-faint);
+    margin-bottom:6px;
+  }
+  .stat .stat-val{
+    font-family:var(--mono);
+    font-size:22px;
+    font-weight:600;
+  }
+  .stat.profit .stat-val.pos{color:var(--profit);}
+  .stat.profit .stat-val.neg{color:var(--loss);}
+
+  .verdict{
+    padding:16px 18px;
+    font-size:13px;
+    font-family:var(--mono);
+    border-top:1px solid var(--line);
+    color:var(--ink-soft);
+  }
+  .verdict.good{background:var(--accent-soft); color:var(--accent);}
+  .verdict.bad{background:#f6e6e3; color:var(--loss);}
+
+  footer{
+    text-align:center;
+    padding:30px 24px 10px;
+    font-family:var(--mono);
+    font-size:11px;
+    color:var(--ink-faint);
+  }
+
+  ::selection{background:var(--accent); color:#fff;}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="brand">
+    <span class="mark">DE</span>
+    <h1>Niche Finder</h1>
+  </div>
+  <div class="sub">sourcing reference · eBay.de fee model</div>
+</header>
+
+<main>
+
+  <section class="pager">
+    <div class="pager-head">
+      <button class="navbtn" id="prevBtn" aria-label="Previous niche">&#8249;</button>
+      <div class="niche-title-wrap">
+        <div class="niche-eyebrow" id="nicheEyebrow">niche</div>
+        <h2 class="niche-title" id="nicheTitle">—</h2>
+      </div>
+      <button class="navbtn" id="nextBtn" aria-label="Next niche">&#8250;</button>
+    </div>
+
+    <div class="product-grid" id="productGrid"></div>
+
+    <div class="dots" id="dots"></div>
+  </section>
+
+  <section class="calc-section">
+    <div class="calc-head">
+      <h2>eBay.de fee calculator</h2>
+      <div class="tag">margin after fees + ads</div>
+    </div>
+
+    <div class="calc-grid">
+      <div class="inputs-panel">
+        <div class="panel-label">Inputs</div>
+
+        <div class="field">
+          <label for="sellingPrice">Selling price</label>
+          <div class="field-row">
+            <span class="currency">€</span>
+            <input type="number" id="sellingPrice" value="50" min="0" step="0.5">
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="costPrice">Cost price</label>
+          <div class="field-row">
+            <span class="currency">€</span>
+            <input type="number" id="costPrice" value="20" min="0" step="0.5">
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="adRate">Ad rate (% of sale price) — <span class="range-out" id="adRateOut">2%</span></label>
+          <input type="range" id="adRate" min="0" max="20" step="0.5" value="2">
+        </div>
+
+        <div class="field">
+          <label for="fvfRate">eBay final value fee (%) — <span class="range-out" id="fvfOut">12.2%</span></label>
+          <input type="range" id="fvfRate" min="0" max="16" step="0.1" value="12.2">
+          <div style="font-family:var(--mono);font-size:10.5px;color:var(--ink-faint);margin-top:6px;">
+            eBay.de category rates vary roughly 4–14%. Default is a general-goods estimate — check your exact category.
+          </div>
+        </div>
+      </div>
+
+      <div class="results-panel">
+        <div class="panel-label">Fee breakdown</div>
+        <div class="fee-line"><span class="fl">Insertion fee</span><span class="fv" id="feeInsertion">€0.35</span></div>
+        <div class="fee-line"><span class="fl">Final value fee</span><span class="fv" id="feeFvf">€—</span></div>
+        <div class="fee-line"><span class="fl">Payment processing</span><span class="fv" id="feePayment">€—</span></div>
+        <div class="fee-line"><span class="fl">Ad cost</span><span class="fv" id="feeAd">€—</span></div>
+        <div class="fee-line total"><span class="fl">Total fees</span><span class="fv" id="feeTotal">€—</span></div>
+
+        <div class="result-stats">
+          <div class="stat">
+            <div class="stat-label">Net proceeds</div>
+            <div class="stat-val" id="statNet">€—</div>
+          </div>
+          <div class="stat profit">
+            <div class="stat-label">Profit</div>
+            <div class="stat-val" id="statProfit">€—</div>
+          </div>
+          <div class="stat profit">
+            <div class="stat-label">Margin on cost</div>
+            <div class="stat-val" id="statMarginCost">—%</div>
+          </div>
+          <div class="stat profit">
+            <div class="stat-label">Margin on sale</div>
+            <div class="stat-val" id="statMarginSale">—%</div>
+          </div>
+        </div>
+
+        <div class="verdict" id="verdict">—</div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>niche finder · reference figures only, verify current eBay.de fee schedule before listing</footer>
+
+<script>
+const niches = [
+  { name: "Kitchen & accessories", eyebrow: "niche 01", products: [
+    ["Silicone utensil sets (4-6 pcs)","€8-15","€25-35"],
+    ["Bamboo utensil sets","€12-18","€35-45"],
+    ["Microfiber cleaning cloths (12-pack)","€6-12","€20-28"],
+    ["Wooden cutting boards","€15-25","€40-50"],
+    ["Herb scissors (multi-blade)","€8-12","€25-35"],
+    ["Stainless steel measuring cups","€10-18","€30-40"],
+    ["Dish brush sets (natural bristle)","€6-12","€20-32"],
+    ["Bamboo kitchen organizer","€15-22","€40-52"]
+  ]},
+  { name: "Gardening & outdoor", eyebrow: "niche 02", products: [
+    ["Garden tool sets (3-5 tools)","€12-20","€35-50"],
+    ["Plant pot sets (5-10 pcs)","€10-18","€30-45"],
+    ["Garden gloves (premium, pack)","€8-14","€25-35"],
+    ["Seed starter kits","€12-18","€35-48"],
+    ["Watering can + spray combo","€15-22","€40-52"],
+    ["Plant markers/labels (bulk)","€5-10","€18-28"],
+    ["Pruning shears set","€14-22","€38-50"],
+    ["Garden twine + ties bundle","€8-14","€25-38"]
+  ]},
+  { name: "Pet products", eyebrow: "niche 03", products: [
+    ["Stainless steel pet bowls","€10-16","€30-42"],
+    ["Dog toy variety packs","€8-14","€25-38"],
+    ["Cat scratching pads","€12-18","€35-48"],
+    ["Pet grooming brush sets","€10-15","€30-40"],
+    ["Premium leash + collar sets","€14-22","€38-52"],
+    ["Pet bed liners (washable)","€15-22","€40-52"],
+    ["Dog training treat pouch","€12-18","€35-45"],
+    ["Aquarium accessory bundle","€16-24","€42-55"]
+  ]},
+  { name: "Textiles & bedding", eyebrow: "niche 04", products: [
+    ["Pillow covers (set of 2, organic)","€12-18","€35-48"],
+    ["Tea towels (set of 4-6, linen)","€10-16","€30-42"],
+    ["Organic bed sheets (single)","€20-30","€50-65"],
+    ["Throw blankets (premium)","€18-25","€45-55"],
+    ["Kitchen towel sets (6-pack)","€8-12","€25-35"],
+    ["Placemats + napkins set","€10-15","€30-42"],
+    ["Bath towel set (3 pcs)","€15-22","€38-50"],
+    ["Duvet covers (organic cotton)","€22-32","€55-70"]
+  ]},
+  { name: "Fitness & wellness", eyebrow: "niche 05", products: [
+    ["Yoga mat + accessories bundle","€18-28","€45-55"],
+    ["Resistance band sets","€10-16","€30-42"],
+    ["Foam roller","€15-22","€38-52"],
+    ["Meditation cushion","€16-24","€40-52"],
+    ["Massage ball sets","€12-18","€35-48"],
+    ["Jump rope (premium)","€12-18","€35-45"],
+    ["Stretching strap kit","€14-20","€38-48"],
+    ["Balance ball + pump","€16-24","€42-52"]
+  ]},
+  { name: "Storage & organization", eyebrow: "niche 06", products: [
+    ["Drawer organizer sets","€8-15","€25-40"],
+    ["Closet hangers (pack of 10-20)","€6-12","€20-30"],
+    ["Under-bed storage bags (3 pcs)","€10-16","€30-45"],
+    ["Cable management kits","€8-14","€25-38"],
+    ["Wall shelf organizers","€12-20","€35-50"],
+    ["Bamboo shelf dividers","€10-16","€30-42"],
+    ["Desk organizer sets","€12-18","€35-48"],
+    ["Filing organizers (bamboo)","€12-18","€35-48"]
+  ]}
+];
+
+let pageIndex = 0;
+
+const nicheTitle = document.getElementById('nicheTitle');
+const nicheEyebrow = document.getElementById('nicheEyebrow');
+const productGrid = document.getElementById('productGrid');
+const dotsWrap = document.getElementById('dots');
+
+function renderDots(){
+  dotsWrap.innerHTML = '';
+  niches.forEach((n, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === pageIndex ? ' active' : '');
+    d.addEventListener('click', () => { pageIndex = i; renderNiche(); });
+    dotsWrap.appendChild(d);
+  });
+}
+
+function renderNiche(){
+  const niche = niches[pageIndex];
+  nicheTitle.textContent = niche.name;
+  nicheEyebrow.textContent = niche.eyebrow;
+  productGrid.innerHTML = '';
+  niche.products.forEach((p, i) => {
+    const card = document.createElement('div');
+    card.className = 'product-card';
+    card.innerHTML = `
+      <div class="num">${String(i+1).padStart(2,'0')}</div>
+      <div class="name">${p[0]}</div>
+      <div class="prices">
+        <div class="price-block cost">
+          <div class="label">Cost</div>
+          <div class="val">${p[1]}</div>
+        </div>
+        <div class="price-block sell">
+          <div class="label">Sell</div>
+          <div class="val">${p[2]}</div>
+        </div>
+      </div>
+    `;
+    productGrid.appendChild(card);
+  });
+  renderDots();
+}
+
+document.getElementById('prevBtn').addEventListener('click', () => {
+  pageIndex = (pageIndex === 0) ? niches.length - 1 : pageIndex - 1;
+  renderNiche();
+});
+document.getElementById('nextBtn').addEventListener('click', () => {
+  pageIndex = (pageIndex === niches.length - 1) ? 0 : pageIndex + 1;
+  renderNiche();
+});
+
+renderNiche();
+
+/* --- Calculator logic --- */
+const sellingPriceEl = document.getElementById('sellingPrice');
+const costPriceEl = document.getElementById('costPrice');
+const adRateEl = document.getElementById('adRate');
+const adRateOut = document.getElementById('adRateOut');
+const fvfRateEl = document.getElementById('fvfRate');
+const fvfOut = document.getElementById('fvfOut');
+
+const feeInsertion = document.getElementById('feeInsertion');
+const feeFvf = document.getElementById('feeFvf');
+const feePayment = document.getElementById('feePayment');
+const feeAd = document.getElementById('feeAd');
+const feeTotal = document.getElementById('feeTotal');
+
+const statNet = document.getElementById('statNet');
+const statProfit = document.getElementById('statProfit');
+const statMarginCost = document.getElementById('statMarginCost');
+const statMarginSale = document.getElementById('statMarginSale');
+const verdict = document.getElementById('verdict');
+
+const INSERTION_FEE = 0.35;
+const PAYMENT_PCT = 1.35;
+const PAYMENT_FIXED = 0.35;
+
+function fmtEUR(n){
+  return '€' + n.toLocaleString('de-DE', {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+function fmtPct(n){
+  return n.toLocaleString('de-DE', {minimumFractionDigits:1, maximumFractionDigits:1}) + '%';
+}
+
+function calculate(){
+  const sellingPrice = Math.max(0, parseFloat(sellingPriceEl.value) || 0);
+  const costPrice = Math.max(0, parseFloat(costPriceEl.value) || 0);
+  const adRate = Math.max(0, parseFloat(adRateEl.value) || 0);
+  const fvfRate = Math.max(0, parseFloat(fvfRateEl.value) || 0);
+
+  adRateOut.textContent = adRate + '%';
+  fvfOut.textContent = fvfRate + '%';
+
+  const fvf = (sellingPrice * fvfRate) / 100;
+  const payment = (sellingPrice * PAYMENT_PCT) / 100 + PAYMENT_FIXED;
+  const adCost = (sellingPrice * adRate) / 100;
+  const totalFees = INSERTION_FEE + fvf + payment + adCost;
+
+  const netProceeds = sellingPrice - totalFees;
+  const profit = netProceeds - costPrice;
+  const marginOnCost = costPrice > 0 ? (profit / costPrice) * 100 : 0;
+  const marginOnSale = sellingPrice > 0 ? (profit / sellingPrice) * 100 : 0;
+
+  feeInsertion.textContent = fmtEUR(INSERTION_FEE);
+  feeFvf.textContent = fmtEUR(fvf);
+  feePayment.textContent = fmtEUR(payment);
+  feeAd.textContent = fmtEUR(adCost);
+  feeTotal.textContent = fmtEUR(totalFees);
+
+  statNet.textContent = fmtEUR(netProceeds);
+  statProfit.textContent = fmtEUR(profit);
+  statProfit.className = 'stat-val ' + (profit >= 0 ? 'pos' : 'neg');
+  statMarginCost.textContent = fmtPct(marginOnCost);
+  statMarginCost.className = 'stat-val ' + (marginOnCost >= 0 ? 'pos' : 'neg');
+  statMarginSale.textContent = fmtPct(marginOnSale);
+  statMarginSale.className = 'stat-val ' + (marginOnSale >= 0 ? 'pos' : 'neg');
+
+  if (profit < 0){
+    verdict.textContent = 'Loss-making at these inputs — raise price or cut cost/ad spend.';
+    verdict.className = 'verdict bad';
+  } else if (marginOnCost < 30){
+    verdict.textContent = 'Below 30% margin on cost — tight, but workable if volume is high.';
+    verdict.className = 'verdict';
+  } else {
+    verdict.textContent = 'Healthy margin — clears your 30% target on cost price.';
+    verdict.className = 'verdict good';
+  }
+}
+
+[sellingPriceEl, costPriceEl, adRateEl, fvfRateEl].forEach(el => {
+  el.addEventListener('input', calculate);
+});
+
+calculate();
+</script>
+
+</body>
+</html>
